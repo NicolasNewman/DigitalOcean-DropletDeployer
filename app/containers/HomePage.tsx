@@ -1,9 +1,23 @@
-import * as React from 'react';
-import { Component } from 'react';
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
 import Home from '../components/Home';
+import CounterActions from '../actions/counter';
 
-export default class HomePage extends Component {
-    render() {
-        return <Home />;
-    }
+export interface CounterState {
+    counter: number;
 }
+
+function mapStateToProps(state: CounterState) {
+    return {
+        counter: state.counter
+    };
+}
+
+function mapDispatchToProps(dispatch: Dispatch) {
+    return bindActionCreators(CounterActions, dispatch);
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Home);

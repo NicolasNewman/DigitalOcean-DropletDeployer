@@ -75,6 +75,7 @@
         "antd": "^3.20.5",
         "connected-react-router": "^6.3.2",
         "core-js": "2",
+        "custom-electron-titlebar": "^3.1.0",
         "devtron": "^1.4.0",
         "electron-debug": "^2.1.0",
         "electron-log": "^3.0.4",
