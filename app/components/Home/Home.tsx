@@ -4,6 +4,10 @@ import { Tabs } from 'antd';
 import { RouteComponentProps } from 'react-router';
 import DataStore from 'app/classes/DataStore';
 
+import Info from '../Info/Info';
+import Startup from '../Startup/Startup';
+import Shutdown from '../Shutdown/Shutdown';
+
 const { TabPane } = Tabs;
 
 interface IProps extends RouteComponentProps<any> {
@@ -31,15 +35,15 @@ export default class Home extends Component<IProps> {
     render() {
         return (
             <div>
-                <Tabs defaultActiveKey="1" onChange={callback}>
+                <Tabs defaultActiveKey="1">
                     <TabPane tab="Info" key={tabKeys.INFO}>
-                        Content of Tab Pane 1
+                        <Info />
                     </TabPane>
                     <TabPane tab="Startup" key={tabKeys.STARTUP}>
-                        Content of Tab Pane 2
+                        <Startup />
                     </TabPane>
                     <TabPane tab="Shutdown" key={tabKeys.SHUTDOWN}>
-                        Content of Tab Pane 3
+                        <Shutdown />
                     </TabPane>
                 </Tabs>
             </div>

@@ -1,6 +1,6 @@
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import Home from '../components/Home';
+import Home from '../components/Home/Home';
 import CounterActions from '../actions/counter';
 
 function mapStateToProps(state, ownProps) {
