@@ -3,13 +3,10 @@ import { connect } from 'react-redux';
 import Home from '../components/Home';
 import CounterActions from '../actions/counter';
 
-export interface CounterState {
-    counter: number;
-}
-
-function mapStateToProps(state: CounterState) {
+function mapStateToProps(state, ownProps) {
     return {
-        counter: state.counter
+        counter: state.counter,
+        dataStore: ownProps.dataStore
     };
 }
 

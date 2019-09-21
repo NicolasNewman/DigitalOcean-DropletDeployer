@@ -16,24 +16,7 @@ export default class DataStore {
             key: {
                 type: 'string',
                 description:
-                    'The API key used to authenticate with Google cloud'
-            },
-            validKey: {
-                type: 'boolean',
-                description: 'Wheather or not the API key is valid',
-                default: false
-            },
-            defaultPath: {
-                type: 'string',
-                description:
-                    'The default path to open to when the program launches',
-                default: 'C:\\Users\\Nicolas Newman\\Documents'
-            },
-            uiTheme: {
-                type: 'string',
-                enum: ['light', 'dark'],
-                default: 'light',
-                description: 'The targeted theme for the UI'
+                    'The API key used to authenticate with Digital Ocean'
             }
         };
         this.store = new Store({ schema: this.schema });
