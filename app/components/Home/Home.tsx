@@ -17,6 +17,7 @@ interface IProps extends RouteComponentProps<any> {
     decrement: () => void;
     counter: number;
     dataStore: DataStore;
+    doClient: any;
 }
 
 const tabKeys = {
@@ -35,14 +36,25 @@ export default class Home extends Component<IProps> {
     render() {
         return (
             <div>
-                <Tabs defaultActiveKey="1">
+                <Tabs defaultActiveKey={tabKeys.INFO}>
                     <TabPane tab="Info" key={tabKeys.INFO}>
-                        <Info />
+                        <Info
+                            doClient={this.props.doClient}
+                            dataStore={this.props.dataStore}
+                        />
                     </TabPane>
-                    <TabPane tab="Startup" key={tabKeys.STARTUP}>
+                    <TabPane
+                        tab="Startup"
+                        key={tabKeys.STARTUP}
+                        disabled={true}
+                    >
                         <Startup />
                     </TabPane>
-                    <TabPane tab="Shutdown" key={tabKeys.SHUTDOWN}>
+                    <TabPane
+                        tab="Shutdown"
+                        key={tabKeys.SHUTDOWN}
+                        disabled={true}
+                    >
                         <Shutdown />
                     </TabPane>
                 </Tabs>

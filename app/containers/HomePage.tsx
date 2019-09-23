@@ -6,7 +6,8 @@ import CounterActions from '../actions/counter';
 function mapStateToProps(state, ownProps) {
     return {
         counter: state.counter,
-        dataStore: ownProps.dataStore
+        dataStore: ownProps.dataStore,
+        doClient: ownProps.doClient
     };
 }
 
