@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 export default class DigitalOceanService {
     private client: AxiosInstance;
 
-    authenticate(key: String) {
+    async authenticate(key: String) {
         this.client = axios.create({
             baseURL: 'https://api.digitalocean.com/v2',
             // timeout: 1000,
@@ -12,6 +12,23 @@ export default class DigitalOceanService {
             }
         });
         // this.getAccountInfo();
+        return await this.verifyKey();
+    }
+
+    /**
+     * Verifys if an API key is valid by making a request to /account
+     */
+    async verifyKey() {
+        try {
+            await this.client.get('/account', {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     getAccountInfo() {

@@ -33,9 +33,13 @@ class Info extends Component<IProps, IState> {
                 if (values.remember) {
                     this.props.dataStore.set('key', values.key);
                 }
-                // TODO IF VALID KEY
-                this.setState({ toHome: true });
-                // this.props.doClient.authenticate(values.key);
+                this.props.doClient.authenticate(values.key).then(res => {
+                    if (res) {
+                        this.setState({ toHome: true });
+                    } else {
+                        // TODO show error
+                    }
+                });
             }
         });
     };
