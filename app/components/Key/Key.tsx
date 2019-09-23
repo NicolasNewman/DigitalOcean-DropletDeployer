@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Component } from 'react';
-import { Form, Button, Row, Checkbox, Select } from 'antd';
+import { Form, Input, Button, Icon, Row, Checkbox } from 'antd';
+import { Redirect } from 'react-router';
+
 import { FormComponentProps } from 'antd/lib/form/Form';
 import DataStore from '../../classes/DataStore';
 import DigitalOceanService from '../../classes/DigitalOceanService';
@@ -10,13 +12,18 @@ interface IProps extends FormComponentProps {
     doClient: DigitalOceanService;
 }
 
-class Info extends Component<IProps> {
+interface IState {
+    toHome: boolean;
+}
+
+class Info extends Component<IProps, IState> {
+    state = {
+        toHome: false
+    };
+
     constructor(props: IProps) {
         super(props);
     }
-
-    // TODO NEED TO AUTH BEFORE THIS CAN BE DONE
-    // getSnapshotNames();
 
     handleSubmit = e => {
         e.preventDefault();
@@ -24,8 +31,11 @@ class Info extends Component<IProps> {
             if (!err) {
                 console.log('Received values of form: ', values);
                 if (values.remember) {
-                    // this.props.dataStore.set('key', values.key);
+                    this.props.dataStore.set('key', values.key);
                 }
+                // TODO IF VALID KEY
+                this.setState({ toHome: true });
+                // this.props.doClient.authenticate(values.key);
             }
         });
     };
@@ -34,10 +44,14 @@ class Info extends Component<IProps> {
         const { getFieldDecorator } = this.props.form;
         console.log(this.props.dataStore);
         console.log(this.props.dataStore.get('key'));
+
+        if (this.state.toHome) {
+            return <Redirect to="/home" />;
+        }
         return (
             <div className="form">
                 <Form layout={'inline'} onSubmit={this.handleSubmit}>
-                    {/* <Form.Item label="API Key">
+                    <Form.Item label="API Key">
                         {getFieldDecorator('key', {
                             initialValue: `${this.props.dataStore.get('key')}`,
                             rules: [
@@ -57,14 +71,7 @@ class Info extends Component<IProps> {
                                 placeholder="API Key"
                             />
                         )}
-                    </Form.Item> */}
-                    <Row>
-                        <Form.Item>
-                            {getFieldDecorator('snapshot', {})(
-                                <Select></Select>
-                            )}
-                        </Form.Item>
-                    </Row>
+                    </Form.Item>
                     <Row>
                         <Form.Item>
                             {getFieldDecorator('remember', {
