@@ -18,6 +18,7 @@ interface IProps extends RouteComponentProps<any> {
     counter: number;
     dataStore: DataStore;
     doClient: any;
+    snapshots: Array<string>;
 }
 
 const tabKeys = {
@@ -34,6 +35,7 @@ export default class Home extends Component<IProps> {
     }
 
     render() {
+        console.log(this.props.snapshots);
         return (
             <div>
                 <Tabs defaultActiveKey={tabKeys.INFO}>
@@ -41,6 +43,7 @@ export default class Home extends Component<IProps> {
                         <Info
                             doClient={this.props.doClient}
                             dataStore={this.props.dataStore}
+                            snapshots={this.props.snapshots}
                         />
                     </TabPane>
                     <TabPane

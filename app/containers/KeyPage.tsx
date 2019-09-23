@@ -1,7 +1,7 @@
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import Key from '../components/Key/Key';
-import CounterActions from '../actions/counter';
+import SnapshotActions from '../actions/snapshot';
 
 function mapStateToProps(state, ownProps) {
     return {
@@ -11,7 +11,7 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch: Dispatch) {
-    return bindActionCreators(CounterActions, dispatch);
+    return bindActionCreators(SnapshotActions, dispatch);
 }
 
 export default connect(

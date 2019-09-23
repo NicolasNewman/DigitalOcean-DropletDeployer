@@ -11,7 +11,6 @@ export default class DigitalOceanService {
                 Authorization: `Bearer ${key}`
             }
         });
-        // this.getAccountInfo();
         return await this.verifyKey();
     }
 
@@ -31,25 +30,12 @@ export default class DigitalOceanService {
         }
     }
 
-    getAccountInfo() {
-        console.log('here!');
-        this.client
-            .get('/account', {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(res => {
-                console.log(res);
-            });
-    }
-
-    getSnapshots = async () => {
+    async getSnapshots() {
         const res = await this.client.get('/snapshots', {
             headers: {
                 'Content-Type': 'application/json'
             }
         });
         return res.data.snapshots;
-    };
+    }
 }

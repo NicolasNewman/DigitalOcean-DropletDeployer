@@ -4,15 +4,21 @@ import Home from '../components/Home/Home';
 import CounterActions from '../actions/counter';
 
 function mapStateToProps(state, ownProps) {
+    console.log(state);
     return {
-        counter: state.counter,
+        snapshots: state.snapshot,
         dataStore: ownProps.dataStore,
         doClient: ownProps.doClient
     };
 }
 
 function mapDispatchToProps(dispatch: Dispatch) {
-    return bindActionCreators(CounterActions, dispatch);
+    return bindActionCreators(
+        {
+            ...CounterActions
+        },
+        dispatch
+    );
 }
 
 export default connect(

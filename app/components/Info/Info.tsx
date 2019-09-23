@@ -5,9 +5,12 @@ import { FormComponentProps } from 'antd/lib/form/Form';
 import DataStore from '../../classes/DataStore';
 import DigitalOceanService from '../../classes/DigitalOceanService';
 
+const { Option } = Select;
+
 interface IProps extends FormComponentProps {
     dataStore: DataStore;
     doClient: DigitalOceanService;
+    snapshots: Array<string>;
 }
 
 class Info extends Component<IProps> {
@@ -37,31 +40,19 @@ class Info extends Component<IProps> {
         return (
             <div className="form">
                 <Form layout={'inline'} onSubmit={this.handleSubmit}>
-                    {/* <Form.Item label="API Key">
-                        {getFieldDecorator('key', {
-                            initialValue: `${this.props.dataStore.get('key')}`,
-                            rules: [
-                                {
-                                    required: true,
-                                    message: 'Please input an API key'
-                                }
-                            ]
-                        })(
-                            <Input
-                                prefix={
-                                    <Icon
-                                        type="user"
-                                        style={{ color: 'rgba(0,0,0,0.25)' }}
-                                    />
-                                }
-                                placeholder="API Key"
-                            />
-                        )}
-                    </Form.Item> */}
                     <Row>
                         <Form.Item>
                             {getFieldDecorator('snapshot', {})(
-                                <Select></Select>
+                                <Select style={{ width: 200 }}>
+                                    {this.props.snapshots.map(name => {
+                                        console.log(name);
+                                        return (
+                                            <Option key={name} value={name}>
+                                                {name}
+                                            </Option>
+                                        );
+                                    })}
+                                </Select>
                             )}
                         </Form.Item>
                     </Row>

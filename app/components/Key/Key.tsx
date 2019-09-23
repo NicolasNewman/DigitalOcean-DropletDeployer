@@ -10,15 +10,18 @@ import DigitalOceanService from '../../classes/DigitalOceanService';
 interface IProps extends FormComponentProps {
     dataStore: DataStore;
     doClient: DigitalOceanService;
+    setSnapshot: (snapshots: Array<String>) => void;
 }
 
 interface IState {
     toHome: boolean;
+    submitDisabled: boolean;
 }
 
 class Info extends Component<IProps, IState> {
-    state = {
-        toHome: false
+    state: IState = {
+        toHome: false,
+        submitDisabled: false
     };
 
     constructor(props: IProps) {
@@ -33,9 +36,18 @@ class Info extends Component<IProps, IState> {
                 if (values.remember) {
                     this.props.dataStore.set('key', values.key);
                 }
+
+                // Make sure the given API key is valid and connects to a DO account
                 this.props.doClient.authenticate(values.key).then(res => {
                     if (res) {
-                        this.setState({ toHome: true });
+                        this.props.doClient.getSnapshots().then(res => {
+                            let nameArr = [];
+                            res.forEach(el => {
+                                nameArr.push(el.name);
+                            });
+                            this.props.setSnapshot(nameArr);
+                            this.setState({ toHome: true });
+                        });
                     } else {
                         // TODO show error
                     }
@@ -46,8 +58,8 @@ class Info extends Component<IProps, IState> {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        console.log(this.props.dataStore);
-        console.log(this.props.dataStore.get('key'));
+        // console.log(this.props.dataStore);
+        // console.log(this.props.dataStore.get('key'));
 
         if (this.state.toHome) {
             return <Redirect to="/home" />;
