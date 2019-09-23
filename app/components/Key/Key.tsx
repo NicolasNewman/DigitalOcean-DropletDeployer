@@ -33,6 +33,8 @@ class Info extends Component<IProps, IState> {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
+                this.setState({ submitDisabled: true });
+                this.setState({ submitDisabled: true });
                 if (values.remember) {
                     this.props.dataStore.set('key', values.key);
                 }
@@ -50,6 +52,7 @@ class Info extends Component<IProps, IState> {
                         });
                     } else {
                         // TODO show error
+                        this.setState({ submitDisabled: false });
                     }
                 });
             }
@@ -97,7 +100,11 @@ class Info extends Component<IProps, IState> {
                         </Form.Item>
                     </Row>
                     <Row>
-                        <Button type="primary" htmlType="submit">
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            disabled={this.state.submitDisabled}
+                        >
                             Submit
                         </Button>
                     </Row>
