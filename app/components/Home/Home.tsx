@@ -11,14 +11,11 @@ import Shutdown from '../Shutdown/Shutdown';
 const { TabPane } = Tabs;
 
 interface IProps extends RouteComponentProps<any> {
-    increment: () => void;
-    incrementIfOdd: () => void;
-    incrementAsync: () => void;
-    decrement: () => void;
     counter: number;
     dataStore: DataStore;
     doClient: any;
     snapshots: Array<string>;
+    regions: Array<string>;
 }
 
 const tabKeys = {
@@ -44,20 +41,13 @@ export default class Home extends Component<IProps> {
                             doClient={this.props.doClient}
                             dataStore={this.props.dataStore}
                             snapshots={this.props.snapshots}
+                            regions={this.props.regions}
                         />
                     </TabPane>
-                    <TabPane
-                        tab="Startup"
-                        key={tabKeys.STARTUP}
-                        disabled={true}
-                    >
+                    <TabPane tab="Startup" key={tabKeys.STARTUP} disabled={true}>
                         <Startup />
                     </TabPane>
-                    <TabPane
-                        tab="Shutdown"
-                        key={tabKeys.SHUTDOWN}
-                        disabled={true}
-                    >
+                    <TabPane tab="Shutdown" key={tabKeys.SHUTDOWN} disabled={true}>
                         <Shutdown />
                     </TabPane>
                 </Tabs>

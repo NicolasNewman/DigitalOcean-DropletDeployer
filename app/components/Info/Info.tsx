@@ -11,15 +11,13 @@ interface IProps extends FormComponentProps {
     dataStore: DataStore;
     doClient: DigitalOceanService;
     snapshots: Array<string>;
+    regions: Array<string>;
 }
 
 class Info extends Component<IProps> {
     constructor(props: IProps) {
         super(props);
     }
-
-    // TODO NEED TO AUTH BEFORE THIS CAN BE DONE
-    // getSnapshotNames();
 
     handleSubmit = e => {
         e.preventDefault();
@@ -43,8 +41,22 @@ class Info extends Component<IProps> {
                     <Row>
                         <Form.Item>
                             {getFieldDecorator('snapshot', {})(
-                                <Select style={{ width: 200 }}>
+                                <Select style={{ width: 200 }} placeholder="Select a snapshot">
                                     {this.props.snapshots.map(name => {
+                                        console.log(name);
+                                        return (
+                                            <Option key={name} value={name}>
+                                                {name}
+                                            </Option>
+                                        );
+                                    })}
+                                </Select>
+                            )}
+                        </Form.Item>
+                        <Form.Item>
+                            {getFieldDecorator('region', {})(
+                                <Select style={{ width: 200 }} placeholder="Select a region">
+                                    {this.props.regions.map(name => {
                                         console.log(name);
                                         return (
                                             <Option key={name} value={name}>

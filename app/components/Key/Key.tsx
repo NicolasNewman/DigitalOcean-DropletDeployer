@@ -10,7 +10,8 @@ import DigitalOceanService from '../../classes/DigitalOceanService';
 interface IProps extends FormComponentProps {
     dataStore: DataStore;
     doClient: DigitalOceanService;
-    setSnapshot: (snapshots: Array<String>) => void;
+    setSnapshot: (snapshots: Array<string>) => void;
+    setRegion: (regions: Array<string>) => void;
 }
 
 interface IState {
@@ -28,41 +29,48 @@ class Info extends Component<IProps, IState> {
         super(props);
     }
 
-    handleSubmit = e => {
+    /**
+     * Takes an array of objects and returns a new array containing only one of the object's field
+     * @param {Array<Object>} arr
+     * @param {string} field
+     * @return {Array<string>}
+     */
+    buildFieldArray(arr: Array<Object>, field: string): Array<string> {
+        let newArr = [];
+        arr.forEach(el => {
+            newArr.push(el[field]);
+        });
+        return newArr;
+    }
+
+    handleSubmit = async e => {
         e.preventDefault();
-        this.props.form.validateFields((err, values) => {
+        this.props.form.validateFields(async (err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
-                this.setState({ submitDisabled: true });
                 this.setState({ submitDisabled: true });
                 if (values.remember) {
                     this.props.dataStore.set('key', values.key);
                 }
 
-                // Make sure the given API key is valid and connects to a DO account
-                this.props.doClient.authenticate(values.key).then(res => {
-                    if (res) {
-                        this.props.doClient.getSnapshots().then(res => {
-                            let nameArr = [];
-                            res.forEach(el => {
-                                nameArr.push(el.name);
-                            });
-                            this.props.setSnapshot(nameArr);
-                            this.setState({ toHome: true });
-                        });
-                    } else {
-                        // TODO show error
-                        this.setState({ submitDisabled: false });
-                    }
-                });
+                const isAuth = await this.props.doClient.authenticate(values.key);
+                if (isAuth) {
+                    const snapshots = await this.props.doClient.getSnapshots();
+                    this.props.setSnapshot(this.buildFieldArray(snapshots, 'name'));
+
+                    const regions = await this.props.doClient.getRegions();
+                    this.props.setRegion(this.buildFieldArray(regions, 'slug'));
+
+                    this.setState({ toHome: true });
+                } else {
+                    this.setState({ submitDisabled: false });
+                }
             }
         });
     };
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        // console.log(this.props.dataStore);
-        // console.log(this.props.dataStore.get('key'));
 
         if (this.state.toHome) {
             return <Redirect to="/home" />;
@@ -81,12 +89,7 @@ class Info extends Component<IProps, IState> {
                             ]
                         })(
                             <Input
-                                prefix={
-                                    <Icon
-                                        type="user"
-                                        style={{ color: 'rgba(0,0,0,0.25)' }}
-                                    />
-                                }
+                                prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,0.25)' }} />}
                                 placeholder="API Key"
                             />
                         )}
@@ -100,11 +103,7 @@ class Info extends Component<IProps, IState> {
                         </Form.Item>
                     </Row>
                     <Row>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            disabled={this.state.submitDisabled}
-                        >
+                        <Button type="primary" htmlType="submit" disabled={this.state.submitDisabled}>
                             Submit
                         </Button>
                     </Row>

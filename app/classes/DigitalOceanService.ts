@@ -3,6 +3,10 @@ import axios, { AxiosInstance } from 'axios';
 export default class DigitalOceanService {
     private client: AxiosInstance;
 
+    private defaults = {
+        size: 's-6vcpu-16gb'
+    };
+
     async authenticate(key: String) {
         this.client = axios.create({
             baseURL: 'https://api.digitalocean.com/v2',
@@ -25,7 +29,7 @@ export default class DigitalOceanService {
                 }
             });
             return true;
-        } catch {
+        } catch (err) {
             return false;
         }
     }
@@ -37,5 +41,18 @@ export default class DigitalOceanService {
             }
         });
         return res.data.snapshots;
+    }
+
+    async getRegions() {
+        const res = await this.client.get('/regions', {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            params: {
+                sizes: this.defaults.size,
+                available: true
+            }
+        });
+        return res.data.regions;
     }
 }
