@@ -76,9 +76,9 @@ class Info extends Component<IProps, IState> {
             return <Redirect to="/home" />;
         }
         return (
-            <div className="form">
+            <div className="container">
                 <Form layout={'inline'} onSubmit={this.handleSubmit}>
-                    <Form.Item label="API Key">
+                    <Form.Item>
                         {getFieldDecorator('key', {
                             initialValue: `${this.props.dataStore.get('key')}`,
                             rules: [

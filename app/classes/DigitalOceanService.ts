@@ -4,7 +4,10 @@ export default class DigitalOceanService {
     private client: AxiosInstance;
 
     private defaults = {
-        size: 's-6vcpu-16gb'
+        // size: 'm-2vcpu-16gb',
+        size: 's-1vcpu-1gb',
+        targetSshKey: 'Windows Key',
+        image: 'ubuntu-18-04-x64'
     };
 
     async authenticate(key: String) {
@@ -54,5 +57,59 @@ export default class DigitalOceanService {
             }
         });
         return res.data.regions;
+    }
+
+    async getSSHKeys() {
+        const res = await this.client.get('/account/keys', {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const keys = res.data.ssh_keys;
+        console.log(keys);
+        let keyObj = {};
+        keys.forEach(el => {
+            keyObj[el.name] = el.id;
+        });
+        return keyObj;
+    }
+
+    async createDroplet(name: String, region: String, snapshot: String) {
+        const sshKeys = await this.getSSHKeys();
+        const targetKeyId = sshKeys[this.defaults.targetSshKey];
+
+        console.log(`name: ${name}`);
+        console.log(`region: ${region}`);
+        console.log(`image: ${snapshot}`);
+        console.log(`size: ${this.defaults.size}`);
+        try {
+            const data = JSON.stringify({
+                name,
+                region,
+                image: this.defaults.image,
+                size: this.defaults.size,
+                ssh_keys: [targetKeyId],
+                monitoring: true,
+                backups: false
+            });
+            const res = await this.client.post('/droplets', data, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log(res);
+            return res.data.droplet.id;
+        } catch (e) {
+            console.log(e.response);
+        }
+    }
+
+    async getDropletStatus(id: string) {
+        const res = await this.client.post(`/droplets/${id}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return res.data.droplet.status;
     }
 }

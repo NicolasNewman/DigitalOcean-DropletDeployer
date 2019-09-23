@@ -15,8 +15,23 @@ export default class DataStore {
         this.schema = {
             key: {
                 type: 'string',
-                description:
-                    'The API key used to authenticate with Digital Ocean'
+                description: 'The API key used to authenticate with Digital Ocean'
+            },
+            name: {
+                type: 'string',
+                description: 'The name of the droplet that is created'
+            },
+            snapshot: {
+                type: 'string',
+                description: 'The backup of the server to load from'
+            },
+            region: {
+                type: 'string',
+                description: 'The region that the server is located in'
+            },
+            id: {
+                type: 'number',
+                description: 'The id of the droplet that was created'
             }
         };
         this.store = new Store({ schema: this.schema });
