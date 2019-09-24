@@ -7,6 +7,8 @@ interface IDefaults {
     region: string;
     name: string;
     snapshotName: string;
+    domain: string;
+    aRecordId: string;
     snapshotId: string;
     dropletId: string;
 }
@@ -15,13 +17,15 @@ export default class DigitalOceanService {
     private client: AxiosInstance;
 
     private defaults: IDefaults = {
-        // size: 'm-2vcpu-16gb',
-        size: 's-1vcpu-1gb',
+        size: 'm-2vcpu-16gb',
+        // size: 's-1vcpu-1gb',
         targetSshKey: 'Windows Key',
         image: 'ubuntu-18-04-x64',
         region: 'nyc3',
         name: 'mc-server',
         snapshotName: 'mc-server-created',
+        domain: 'quantumpie.net',
+        aRecordId: '79536515',
         snapshotId: '',
         dropletId: ''
     };
@@ -151,13 +155,24 @@ export default class DigitalOceanService {
         return res.data.droplet.status;
     }
 
-    async rebuildDroplet(id: string, snapshot: string) {
+    async getDropletIp(id: string) {
+        const res = await this.client.get(`/droplets/${id}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log(res);
+        return res.data.droplet.networks.v4[0].ip_address;
+    }
+
+    async updateRecord(ip: string) {
         try {
             const data = JSON.stringify({
-                type: 'rebuild',
-                image: snapshot
+                type: 'A',
+                name: `mc`,
+                data: ip
             });
-            await this.client.post(`/droplets/${id}/actions`, data, {
+            await this.client.put(`/domains/${this.defaults.domain}/records/${this.defaults.aRecordId}`, data, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -166,6 +181,22 @@ export default class DigitalOceanService {
             console.log(err.response);
         }
     }
+
+    // async rebuildDroplet(id: string, snapshot: string) {
+    //     try {
+    //         const data = JSON.stringify({
+    //             type: 'rebuild',
+    //             image: snapshot
+    //         });
+    //         await this.client.post(`/droplets/${id}/actions`, data, {
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         });
+    //     } catch (err) {
+    //         console.log(err.response);
+    //     }
+    // }
 
     async getActionStatus(id: string) {
         try {

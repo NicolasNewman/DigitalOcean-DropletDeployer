@@ -55,11 +55,16 @@ export default class Startup extends Component<IProps, IState> {
         this.waitForFlag(
             async () => {
                 const status = await this.props.doClient.getDropletStatus(id);
-                this.writeToLog(`The current droplet status is ${status}`);
+                this.writeToLog(`The droplet's status is ${status}`);
                 return status === 'active' ? true : false;
             },
-            () => {
-                this.writeToLog('The droplet is now active');
+            async () => {
+                this.writeToLog("Getting the droplet's ip...");
+                const ip = await this.props.doClient.getDropletIp(id);
+                this.writeToLog(`The droplet's ip is ${ip}`);
+                this.writeToLog("Updating the domain's A record to the new IP...");
+                await this.props.doClient.updateRecord(ip);
+                this.writeToLog("Updated the record's IP");
             },
             timeout
         );
@@ -71,7 +76,7 @@ export default class Startup extends Component<IProps, IState> {
                 <Button type="primary" onClick={this.start}>
                     Start
                 </Button>
-                <TextArea rows={14} className="log" value={this.state.logText} disabled={true}></TextArea>
+                <TextArea rows={19} className="log" value={this.state.logText} disabled={true}></TextArea>
             </div>
         );
     }
