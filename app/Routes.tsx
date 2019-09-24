@@ -18,23 +18,13 @@ export default class Routes extends Component {
                 <Switch>
                     <Route
                         path={routes.HOME}
-                        component={() => (
-                            <HomePage
-                                dataStore={this.dataStore}
-                                doClient={this.doClient}
-                            />
-                        )}
+                        component={() => <HomePage dataStore={this.dataStore} doClient={this.doClient} />}
                     />
                     <Route
                         path={routes.KEY}
-                        component={() => (
-                            <KeyPage
-                                dataStore={this.dataStore}
-                                doClient={this.doClient}
-                            />
-                        )}
+                        component={() => <KeyPage dataStore={this.dataStore} doClient={this.doClient} />}
                     />
-                    <Redirect from="/" to="/key" />
+                    <Redirect from="/" to="/home" />
                 </Switch>
             </App>
         );

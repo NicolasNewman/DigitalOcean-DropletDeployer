@@ -55,11 +55,11 @@ class Info extends Component<IProps, IState> {
 
                 const isAuth = await this.props.doClient.authenticate(values.key);
                 if (isAuth) {
-                    const snapshots = await this.props.doClient.getSnapshots();
-                    this.props.setSnapshot(this.buildFieldArray(snapshots, 'name'));
+                    // const snapshots = await this.props.doClient.getSnapshots();
+                    // this.props.setSnapshot(this.buildFieldArray(snapshots, 'name'));
 
-                    const regions = await this.props.doClient.getRegions();
-                    this.props.setRegion(this.buildFieldArray(regions, 'slug'));
+                    // const regions = await this.props.doClient.getRegions();
+                    // this.props.setRegion(this.buildFieldArray(regions, 'slug'));
 
                     this.setState({ toHome: true });
                 } else {

@@ -11,11 +11,12 @@ import Shutdown from '../Shutdown/Shutdown';
 const { TabPane } = Tabs;
 
 interface IProps extends RouteComponentProps<any> {
-    counter: number;
     dataStore: DataStore;
     doClient: any;
-    snapshots: Array<string>;
-    regions: Array<string>;
+    startupTabState: boolean;
+    shutdownTabState: boolean;
+    setStartupTabState: (state: boolean) => void;
+    setShutdownTabState: (state: boolean) => void;
 }
 
 const tabKeys = {
@@ -32,7 +33,6 @@ export default class Home extends Component<IProps> {
     }
 
     render() {
-        console.log(this.props.snapshots);
         return (
             <div>
                 <Tabs defaultActiveKey={tabKeys.INFO}>
@@ -40,14 +40,14 @@ export default class Home extends Component<IProps> {
                         <Info
                             doClient={this.props.doClient}
                             dataStore={this.props.dataStore}
-                            snapshots={this.props.snapshots}
-                            regions={this.props.regions}
+                            setStartupTabState={this.props.setStartupTabState}
+                            setShutdownTabState={this.props.setShutdownTabState}
                         />
                     </TabPane>
-                    <TabPane tab="Startup" key={tabKeys.STARTUP} disabled={true}>
-                        <Startup />
+                    <TabPane tab="Startup" key={tabKeys.STARTUP} disabled={this.props.startupTabState}>
+                        <Startup doClient={this.props.doClient} dataStore={this.props.dataStore} />
                     </TabPane>
-                    <TabPane tab="Shutdown" key={tabKeys.SHUTDOWN} disabled={true}>
+                    <TabPane tab="Shutdown" key={tabKeys.SHUTDOWN} disabled={this.props.shutdownTabState}>
                         <Shutdown />
                     </TabPane>
                 </Tabs>

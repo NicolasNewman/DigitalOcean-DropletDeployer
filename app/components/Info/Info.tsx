@@ -1,160 +1,76 @@
 import * as React from 'react';
 import { Component } from 'react';
-import { Form, Button, Row, Checkbox, Select, Icon, Input } from 'antd';
+import { Form, Input, Button, Icon, Row, Checkbox } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import DataStore from '../../classes/DataStore';
 import DigitalOceanService from '../../classes/DigitalOceanService';
 
-const { Option } = Select;
-const { TextArea } = Input;
-
 interface IProps extends FormComponentProps {
     dataStore: DataStore;
     doClient: DigitalOceanService;
-    snapshots: Array<string>;
-    regions: Array<string>;
+    setStartupTabState: (state: boolean) => void;
+    setShutdownTabState: (state: boolean) => void;
 }
 
 interface IState {
-    logText: string;
+    submitDisabled: boolean;
 }
 
 class Info extends Component<IProps, IState> {
     state: IState = {
-        logText: ''
+        submitDisabled: false
     };
+
     constructor(props: IProps) {
         super(props);
     }
 
-    fromStore(key: string): any {
-        return this.props.dataStore.get(key);
-    }
-
-    writeToLog(line: string) {
-        const newText = this.state.logText !== '' ? this.state.logText + '\n' + line : line;
-        this.setState({
-            logText: newText
-        });
-    }
-
-    async waitForFlag(flagFunc, func, timeout) {
-        console.log('In wait for flag');
-        const res = await flagFunc();
-        console.log('Got res of ' + res);
-        if (res) {
-            func();
-        } else {
-            setTimeout(() => this.waitForFlag(flagFunc, func, timeout), timeout);
-        }
-
-        // const status = await this.props.doClient.getDropletStatus();
-        // this.writeToLog(`The status is ${status}`);
-        // if (status === "active") {
-        //     console.log("THE SERVER IS ACTIVE");
-        //     func();
-        // } else {
-        //     setTimeout(() => this.waitForFlag(func), 15000);
-        // }
-    }
-
-    handleSubmit = e => {
+    handleSubmit = async e => {
         e.preventDefault();
+        this.setState({ submitDisabled: true });
         this.props.form.validateFields(async (err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
+                this.setState({ submitDisabled: true });
+
+                // Save the key if requested
                 if (values.remember) {
-                    this.props.dataStore.set('name', values.name);
-                    this.props.dataStore.set('snapshot', values.snapshot);
-                    this.props.dataStore.set('region', values.region);
+                    this.props.dataStore.set('key', values.key);
                 }
-                this.writeToLog('Test');
 
-                // 1) Create the droplet
-                this.writeToLog('Creating droplet...');
-                const id = await this.props.doClient.createDroplet(values.name, values.region, values.snapshot);
-                this.writeToLog(`Created droplet with id ${id}`);
-                this.props.dataStore.set('id', id);
-
-                // 2) Wait for it to turn on
-                const timeout = 15000;
-                this.writeToLog(`Checking if the droplet is active every ${timeout / 1000} seconds...`);
-                this.waitForFlag(
-                    async () => {
-                        const status = await this.props.doClient.getDropletStatus(id);
-                        this.writeToLog(`The current droplet status is ${status}`);
-                        return status === 'active' ? true : false;
-                    },
-                    () => {
-                        // 3) Load from the snapshot
-                        this.writeToLog('The droplet is now active');
-                        this.writeToLog('Loading from snapshot...');
-                    },
-                    timeout
-                );
+                // Check if the user's key is valid
+                const isAuth = await this.props.doClient.authenticate(values.key);
+                if (isAuth) {
+                    this.props.setStartupTabState(false);
+                    this.props.setShutdownTabState(false);
+                } else {
+                    this.setState({ submitDisabled: false });
+                }
             }
         });
     };
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        console.log(this.props.dataStore);
-        console.log(this.fromStore('key'));
         return (
             <div className="form">
                 <Form layout={'inline'} onSubmit={this.handleSubmit}>
                     <Form.Item>
-                        {getFieldDecorator('name', {
-                            initialValue: `${this.fromStore('name')}`,
+                        {getFieldDecorator('key', {
+                            initialValue: `${this.props.dataStore.get('key')}`,
                             rules: [
                                 {
                                     required: true,
-                                    message: 'Please input a droplet name'
+                                    message: 'Please input an API key'
                                 }
                             ]
                         })(
                             <Input
                                 prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,0.25)' }} />}
-                                placeholder="Droplet name"
+                                placeholder="API Key"
                             />
                         )}
                     </Form.Item>
-                    <Row>
-                        <Form.Item>
-                            {getFieldDecorator('snapshot', {
-                                // initialValue: `${
-                                //     this.props.snapshots.includes(this.fromStore('snapshot'))
-                                //         ? this.fromStore('snapshot')
-                                //         : ''
-                                // }`
-                            })(
-                                <Select style={{ width: 150 }} placeholder="Select a snapshot">
-                                    {this.props.snapshots.map(name => {
-                                        console.log(name);
-                                        return (
-                                            <Option key={name} value={name}>
-                                                {name}
-                                            </Option>
-                                        );
-                                    })}
-                                </Select>
-                            )}
-                        </Form.Item>
-                        <Form.Item>
-                            {getFieldDecorator('region', {})(
-                                <Select style={{ width: 150 }} placeholder="Select a region">
-                                    {this.props.regions.map(name => {
-                                        console.log(name);
-                                        return (
-                                            <Option key={name} value={name}>
-                                                {name}
-                                            </Option>
-                                        );
-                                    })}
-                                </Select>
-                            )}
-                        </Form.Item>
-                    </Row>
                     <Row>
                         <Form.Item>
                             {getFieldDecorator('remember', {
@@ -164,12 +80,11 @@ class Info extends Component<IProps, IState> {
                         </Form.Item>
                     </Row>
                     <Row>
-                        <Button type="primary" htmlType="submit">
+                        <Button type="primary" htmlType="submit" disabled={this.state.submitDisabled}>
                             Submit
                         </Button>
                     </Row>
                 </Form>
-                <TextArea rows={14} className="log" value={this.state.logText} disabled={true}></TextArea>
             </div>
         );
     }

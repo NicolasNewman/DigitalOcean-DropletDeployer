@@ -1,14 +1,34 @@
 import axios, { AxiosInstance } from 'axios';
 
+interface IDefaults {
+    size: string;
+    targetSshKey: string;
+    image: string;
+    region: string;
+    name: string;
+    snapshotName: string;
+    snapshotId: string;
+    dropletId: string;
+}
+
 export default class DigitalOceanService {
     private client: AxiosInstance;
 
-    private defaults = {
+    private defaults: IDefaults = {
         // size: 'm-2vcpu-16gb',
         size: 's-1vcpu-1gb',
         targetSshKey: 'Windows Key',
-        image: 'ubuntu-18-04-x64'
+        image: 'ubuntu-18-04-x64',
+        region: 'nyc3',
+        name: 'mc-server',
+        snapshotName: 'mc-server-created',
+        snapshotId: '',
+        dropletId: ''
     };
+
+    getDefaults(): IDefaults {
+        return this.defaults;
+    }
 
     async authenticate(key: String) {
         this.client = axios.create({
@@ -46,6 +66,18 @@ export default class DigitalOceanService {
         return res.data.snapshots;
     }
 
+    private async getSnapshotIdFromName() {
+        const res = await this.client.get('/snapshots', {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            params: {
+                name: this.defaults.snapshotName
+            }
+        });
+        return res.data.snapshots[0].id;
+    }
+
     async getRegions() {
         const res = await this.client.get('/regions', {
             headers: {
@@ -74,33 +106,39 @@ export default class DigitalOceanService {
         return keyObj;
     }
 
-    async createDroplet(name: String, region: String, snapshot: String) {
+    async createDroplet() {
         const sshKeys = await this.getSSHKeys();
         const targetKeyId = sshKeys[this.defaults.targetSshKey];
+        const snapshotId = await this.getSnapshotIdFromName();
+        this.defaults.snapshotId = snapshotId;
 
-        console.log(`name: ${name}`);
-        console.log(`region: ${region}`);
-        console.log(`image: ${snapshot}`);
-        console.log(`size: ${this.defaults.size}`);
-        try {
-            const data = JSON.stringify({
-                name,
-                region,
-                image: this.defaults.image,
-                size: this.defaults.size,
-                ssh_keys: [targetKeyId],
-                monitoring: true,
-                backups: false
-            });
-            const res = await this.client.post('/droplets', data, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            console.log(res);
-            return res.data.droplet.id;
-        } catch (e) {
-            console.log(e.response);
+        if (this.defaults.snapshotId !== '') {
+            try {
+                const data = JSON.stringify({
+                    name: this.defaults.name,
+                    // region,
+                    region: this.defaults.region,
+                    // image: this.defaults.image,
+                    image: this.defaults.snapshotId,
+                    size: this.defaults.size,
+                    ssh_keys: [targetKeyId],
+                    monitoring: true,
+                    backups: false
+                });
+                const res = await this.client.post('/droplets', data, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log(res);
+                const dropletId = res.data.droplet.id;
+                this.defaults.dropletId = dropletId;
+                return dropletId;
+            } catch (e) {
+                console.log(e.response);
+            }
+        } else {
+            // TODO throw error
         }
     }
 
@@ -111,5 +149,35 @@ export default class DigitalOceanService {
             }
         });
         return res.data.droplet.status;
+    }
+
+    async rebuildDroplet(id: string, snapshot: string) {
+        try {
+            const data = JSON.stringify({
+                type: 'rebuild',
+                image: snapshot
+            });
+            await this.client.post(`/droplets/${id}/actions`, data, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (err) {
+            console.log(err.response);
+        }
+    }
+
+    async getActionStatus(id: string) {
+        try {
+            const res = await this.client.get(`/droplets/${id}/actions`, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('action status ' + res);
+            return res.data.actions.status;
+        } catch (err) {
+            console.log(err.response);
+        }
     }
 }
