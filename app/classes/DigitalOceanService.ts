@@ -105,7 +105,7 @@ export default class DigitalOceanService {
     }
 
     async getDropletStatus(id: string) {
-        const res = await this.client.post(`/droplets/${id}`, {
+        const res = await this.client.get(`/droplets/${id}`, {
             headers: {
                 'Content-Type': 'application/json'
             }

@@ -4,7 +4,6 @@ import { Form, Button, Row, Checkbox, Select, Icon, Input } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import DataStore from '../../classes/DataStore';
 import DigitalOceanService from '../../classes/DigitalOceanService';
-import { string } from 'prop-types';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -33,14 +32,16 @@ class Info extends Component<IProps, IState> {
     }
 
     writeToLog(line: string) {
-        console.log('LOG TEXT ' + this.state.logText);
+        const newText = this.state.logText !== '' ? this.state.logText + '\n' + line : line;
         this.setState({
-            logText: this.state.logText + '\n' + string
+            logText: newText
         });
     }
 
     async waitForFlag(flagFunc, func, timeout) {
+        console.log('In wait for flag');
         const res = await flagFunc();
+        console.log('Got res of ' + res);
         if (res) {
             func();
         } else {
@@ -67,6 +68,7 @@ class Info extends Component<IProps, IState> {
                     this.props.dataStore.set('snapshot', values.snapshot);
                     this.props.dataStore.set('region', values.region);
                 }
+                this.writeToLog('Test');
 
                 // 1) Create the droplet
                 this.writeToLog('Creating droplet...');
@@ -84,7 +86,9 @@ class Info extends Component<IProps, IState> {
                         return status === 'active' ? true : false;
                     },
                     () => {
-                        this.writeToLog('Running code after its active');
+                        // 3) Load from the snapshot
+                        this.writeToLog('The droplet is now active');
+                        this.writeToLog('Loading from snapshot...');
                     },
                     timeout
                 );
