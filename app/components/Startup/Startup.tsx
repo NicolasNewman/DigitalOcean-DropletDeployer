@@ -19,6 +19,7 @@ export default class Startup extends Component<IProps, IState> {
     state: IState = {
         logText: ''
     };
+
     constructor(props: IProps) {
         super(props);
     }

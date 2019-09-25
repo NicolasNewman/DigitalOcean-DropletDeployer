@@ -48,7 +48,7 @@ export default class Home extends Component<IProps> {
                         <Startup doClient={this.props.doClient} dataStore={this.props.dataStore} />
                     </TabPane>
                     <TabPane tab="Shutdown" key={tabKeys.SHUTDOWN} disabled={this.props.shutdownTabState}>
-                        <Shutdown />
+                        <Shutdown doClient={this.props.doClient} dataStore={this.props.dataStore} />
                     </TabPane>
                 </Tabs>
             </div>

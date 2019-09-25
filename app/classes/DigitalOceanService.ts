@@ -146,6 +146,28 @@ export default class DigitalOceanService {
         }
     }
 
+    async doesDropletExist() {
+        try {
+            const res = await this.client.get('/droplets', {
+                headers: {
+                    'Contnet-Type': 'application/json'
+                }
+            });
+            console.log(res);
+            let flag = false;
+            res.data.droplets.forEach((droplet, i) => {
+                if (droplet.name === this.defaults.name) {
+                    flag = true;
+                    this.defaults.dropletId = `${res.data.droplets[i].id}`;
+                }
+            });
+            return flag;
+        } catch (err) {
+            console.log(err.response);
+            return false;
+        }
+    }
+
     async getDropletStatus(id: string) {
         const res = await this.client.get(`/droplets/${id}`, {
             headers: {
@@ -165,6 +187,45 @@ export default class DigitalOceanService {
         return res.data.droplet.networks.v4[0].ip_address;
     }
 
+    async shutdownDroplet() {
+        if (this.defaults.snapshotId !== '') {
+            try {
+                const data = JSON.stringify({
+                    type: 'shutdown'
+                });
+                await this.client.post(`/droplets/${this.defaults.dropletId}/actions`, data, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } catch (e) {
+                console.log(e.response);
+            }
+        } else {
+            // TODO throw error
+        }
+    }
+
+    async snapshotDroplet() {
+        if (this.defaults.snapshotId !== '') {
+            try {
+                const data = JSON.stringify({
+                    type: 'snapshot',
+                    name: this.defaults.snapshotName
+                });
+                await this.client.post(`/droplets/${this.defaults.dropletId}/actions`, data, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } catch (e) {
+                console.log(e.response);
+            }
+        } else {
+            // TODO throw error
+        }
+    }
+
     async updateRecord(ip: string) {
         try {
             const data = JSON.stringify({
@@ -181,22 +242,6 @@ export default class DigitalOceanService {
             console.log(err.response);
         }
     }
-
-    // async rebuildDroplet(id: string, snapshot: string) {
-    //     try {
-    //         const data = JSON.stringify({
-    //             type: 'rebuild',
-    //             image: snapshot
-    //         });
-    //         await this.client.post(`/droplets/${id}/actions`, data, {
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         });
-    //     } catch (err) {
-    //         console.log(err.response);
-    //     }
-    // }
 
     async getActionStatus(id: string) {
         try {
