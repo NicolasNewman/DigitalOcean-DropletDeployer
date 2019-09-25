@@ -21,8 +21,8 @@
         "start-renderer-dev": "cross-env NODE_ENV=development webpack-dev-server --config configs/webpack.config.renderer.dev.babel.js"
     },
     "build": {
-        "productName": "ElectronReact",
-        "appId": "org.develar.ElectronReact",
+        "productName": "DO Server Manager",
+        "appId": "com.nicolasnewman.doservermanager",
         "files": [
             "app/dist/",
             "app/icon.png",
