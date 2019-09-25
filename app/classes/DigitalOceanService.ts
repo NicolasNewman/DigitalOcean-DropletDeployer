@@ -23,7 +23,7 @@ export default class DigitalOceanService {
         image: 'ubuntu-18-04-x64',
         region: 'nyc3',
         name: 'mc-server',
-        snapshotName: 'mc-server-created',
+        snapshotName: 'mc-perms',
         domain: 'quantumpie.net',
         aRecordId: '79536515',
         snapshotId: '',
@@ -213,16 +213,28 @@ export default class DigitalOceanService {
                     type: 'snapshot',
                     name: this.defaults.snapshotName
                 });
-                await this.client.post(`/droplets/${this.defaults.dropletId}/actions`, data, {
+                const res = await this.client.post(`/droplets/${this.defaults.dropletId}/actions`, data, {
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
+                console.log('snapshoted');
+                console.log(res);
             } catch (e) {
                 console.log(e.response);
             }
         } else {
             // TODO throw error
+        }
+    }
+
+    async destroyDroplet() {
+        if (this.defaults.snapshotId !== '') {
+            await this.client.delete(`/droplets/${this.defaults.dropletId}`, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
         }
     }
 
@@ -250,8 +262,8 @@ export default class DigitalOceanService {
                     'Content-Type': 'application/json'
                 }
             });
-            console.log('action status ' + res);
-            return res.data.actions.status;
+            console.log(res);
+            return res.data.actions[0].status;
         } catch (err) {
             console.log(err.response);
         }

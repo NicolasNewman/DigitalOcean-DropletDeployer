@@ -27,40 +27,52 @@ export default class Shutdown extends Component<IProps, IState> {
     }
 
     stop = async () => {
-        // verify the server is actually on and the game server is off!
+        // 1) Make sure the droplet exists
         this.writeToLog('Checking if droplet exists...');
         const dropletExists = await this.props.doClient.doesDropletExist();
         if (dropletExists) {
+            // 2) Make sure the server is offline
             this.writeToLog('Droplet found');
             this.writeToLog('Checking if the mc server is off...');
             const isServerOnline = await isReachable('mc.quantumpie.net:25565');
             if (!isServerOnline) {
+                // 3) Shutdown the droplet and wait for the action to finish
                 this.writeToLog('The server is offline');
                 this.writeToLog('Turning off droplet...');
                 await this.props.doClient.shutdownDroplet();
                 let timeout = 5000;
                 this.writeToLog(`Checking if the droplet is offline every ${timeout / 1000} seconds...`);
-                this.waitForFlag
+                this.waitForFlag(
                     async () => {
-                        const status = await this.props.doClient.getActionStatus();
+                        // 3.1) Check if the action is finished
+                        const status = await this.props.doClient.getActionStatus(
+                            this.props.doClient.getDefaults().dropletId
+                        );
                         this.writeToLog(`The current status is ${status}`);
-                        return status;
+                        return status === 'completed' ? true : false;
                     },
                     async () => {
+                        // 4) Create the snapshot
                         this.writeToLog('The droplet is now offline');
                         this.writeToLog('Creating snapshot of droplet...');
                         await this.props.doClient.snapshotDroplet();
-                        timeout = 10000;
+                        timeout = 25000;
                         this.writeToLog(`Checking if the snapshot is complete every ${timeout / 1000} seconds...`);
                         this.waitForFlag(
                             async () => {
-                                const status = await this.props.doClient.getActionStatus();
+                                // 4.1) Check if the action is finished
+                                const status = await this.props.doClient.getActionStatus(
+                                    this.props.doClient.getDefaults().dropletId
+                                );
                                 this.writeToLog(`The current status is ${status}`);
-                                return status;
+                                return status === 'completed' ? true : false;
                             },
                             async () => {
+                                // 5) Destroy the droplet
                                 this.writeToLog('The snapshot has been created');
                                 this.writeToLog('Destroying droplet...');
+                                await this.props.doClient.destroyDroplet();
+                                this.writeToLog('Droplet destroyed. It is now safe to exit');
                             },
                             timeout
                         );
