@@ -1,5 +1,5 @@
 {
-    "name": "electron-boilerplate",
+    "name": "do-server-manager",
     "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
     "version": "1.0.0",
     "main": "./app/main.prod.js",
@@ -25,6 +25,7 @@
         "appId": "org.develar.ElectronReact",
         "files": [
             "app/dist/",
+            "app/icon.png",
             "app/app.html",
             "app/main.prod.js",
             "app/main.prod.js.map",
