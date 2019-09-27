@@ -35,6 +35,7 @@ export default class Shutdown extends Component<IProps, IState> {
             this.writeToLog('Droplet found');
             this.writeToLog('Checking if the mc server is off...');
             const isServerOnline = await isReachable('mc.quantumpie.net:25565');
+            console.log(`isServerOnline is ${isServerOnline}`);
             if (!isServerOnline) {
                 // 3) Shutdown the droplet and wait for the action to finish
                 this.writeToLog('The server is offline');

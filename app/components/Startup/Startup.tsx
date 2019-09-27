@@ -45,9 +45,13 @@ export default class Startup extends Component<IProps, IState> {
     }
 
     start = async () => {
+        this.writeToLog('Making sure there are no duplicate snapshots...');
+        await this.props.doClient.deleteDuplicateSnapshots();
+
         // 1) Create the droplet
         this.writeToLog('Creating droplet...');
         const id = await this.props.doClient.createDroplet();
+        // this.props.dataStore.set('id', id);
         this.writeToLog(`Created droplet with ID ${id}`);
 
         // 2) Wait for the droplet to be active
@@ -66,6 +70,7 @@ export default class Startup extends Component<IProps, IState> {
                 this.writeToLog("Updating the domain's A record to the new IP...");
                 await this.props.doClient.updateRecord(ip);
                 this.writeToLog("Updated the record's IP");
+                this.writeToLog('Done. Please give the mc server time to turn on.');
             },
             timeout
         );

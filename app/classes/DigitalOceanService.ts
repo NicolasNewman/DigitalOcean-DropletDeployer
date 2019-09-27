@@ -23,7 +23,7 @@ export default class DigitalOceanService {
         image: 'ubuntu-18-04-x64',
         region: 'nyc3',
         name: 'mc-server',
-        snapshotName: 'mc-perms',
+        snapshotName: 'mc-done-2-spawn',
         domain: 'quantumpie.net',
         aRecordId: '79536515',
         snapshotId: '',
@@ -80,6 +80,52 @@ export default class DigitalOceanService {
             }
         });
         return res.data.snapshots[0].id;
+    }
+
+    async deleteDuplicateSnapshots() {
+        const res = await this.client.get('/snapshots', {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            params: {
+                name: this.defaults.snapshotName
+            }
+        });
+        const snapshots = res.data.snapshots;
+        const dates = [];
+
+        // Push the date of each snapshot to dates array
+        snapshots.forEach((snap, i) => {
+            dates.push(new Date(snap.created_at));
+        });
+
+        if (dates.length > 1) {
+            // Find the most recent date
+            let maxIndx = 0;
+            let maxDate = dates[0];
+            dates.forEach((date, i) => {
+                if (date > maxDate) {
+                    maxIndx = i;
+                    maxDate = dates[i];
+                }
+            });
+            console.log(`Keep date ${maxDate} at index ${maxIndx}`);
+            snapshots.forEach(async (snap, i) => {
+                if (i !== maxIndx) {
+                    console.log('Deleting:');
+                    console.log(snap);
+                    const status = await this.client.delete(`/snapshots/${snap.id}`, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    console.log(status);
+                } else {
+                    console.log('Saving: ');
+                    console.log(snap);
+                }
+            });
+        }
     }
 
     async getRegions() {
