@@ -70,6 +70,8 @@ export default class Startup extends Component<IProps, IState> {
                 this.writeToLog("Updating the domain's A record to the new IP...");
                 await this.props.doClient.updateRecord(ip);
                 this.writeToLog("Updated the record's IP");
+                this.writeToLog('Putting the ids into storage...');
+                this.props.doClient.storeDefaults();
                 this.writeToLog('Done. Please give the mc server time to turn on.');
             },
             timeout

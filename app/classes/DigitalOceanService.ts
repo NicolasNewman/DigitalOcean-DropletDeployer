@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import DataStore from './DataStore';
 
 interface IDefaults {
     size: string;
@@ -15,6 +16,7 @@ interface IDefaults {
 
 export default class DigitalOceanService {
     private client: AxiosInstance;
+    private store: DataStore = new DataStore();
 
     private defaults: IDefaults = {
         size: 'm-2vcpu-16gb',
@@ -23,7 +25,7 @@ export default class DigitalOceanService {
         image: 'ubuntu-18-04-x64',
         region: 'nyc3',
         name: 'mc-server',
-        snapshotName: 'mc-done-2-spawn',
+        snapshotName: 'update-forge',
         domain: 'quantumpie.net',
         aRecordId: '79536515',
         snapshotId: '',
@@ -34,7 +36,19 @@ export default class DigitalOceanService {
         return this.defaults;
     }
 
-    async authenticate(key: String) {
+    storeDefaults(): void {
+        this.store.set('dropletId', this.defaults.dropletId);
+        this.store.set('snapshotId', this.defaults.snapshotId);
+    }
+
+    repopulateDefaults(): void {
+        this.defaults.dropletId = this.store.get('dropletId');
+        this.defaults.snapshotId = this.store.get('snapshotId');
+    }
+
+    async authenticate(key: string, snapshotName: string) {
+        this.defaults.snapshotName = snapshotName;
+
         this.client = axios.create({
             baseURL: 'https://api.digitalocean.com/v2',
             // timeout: 1000,
