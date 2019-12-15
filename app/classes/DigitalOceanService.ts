@@ -37,13 +37,13 @@ export default class DigitalOceanService {
     }
 
     storeDefaults(): void {
-        this.store.set('dropletId', this.defaults.dropletId);
-        this.store.set('snapshotId', this.defaults.snapshotId);
+        this.store.set('dropletId', '' + this.defaults.dropletId);
+        this.store.set('snapshotId', '' + this.defaults.snapshotId);
     }
 
     repopulateDefaults(): void {
-        this.defaults.dropletId = this.store.get('dropletId');
-        this.defaults.snapshotId = this.store.get('snapshotId');
+        this.defaults.dropletId = '' + this.store.get('dropletId');
+        this.defaults.snapshotId = '' + this.store.get('snapshotId');
     }
 
     async authenticate(key: string, snapshotName: string) {

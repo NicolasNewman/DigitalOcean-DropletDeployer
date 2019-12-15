@@ -78,7 +78,11 @@ class Info extends Component<IProps, IState> {
                     <Row>
                         <Form.Item>
                             {getFieldDecorator('snapshotName', {
-                                initialValue: `${this.props.dataStore.get('snapshotName')}`,
+                                initialValue: `${
+                                    this.props.dataStore.get('snapshotName')
+                                        ? this.props.dataStore.get('snapshotName')
+                                        : this.props.doClient.getDefaults().snapshotName
+                                }`,
                                 rules: [
                                     {
                                         required: true,
@@ -87,7 +91,7 @@ class Info extends Component<IProps, IState> {
                                 ]
                             })(
                                 <Input
-                                    prefix={<Icon type="file-signature" style={{ color: 'rgba(0,0,0,0.25)' }} />}
+                                    prefix={<Icon type="tag" style={{ color: 'rgba(0,0,0,0.25)' }} />}
                                     placeholder="Snapshot name"
                                 />
                             )}
