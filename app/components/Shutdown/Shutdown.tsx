@@ -50,7 +50,7 @@ export default class Shutdown extends Component<IProps, IState> {
                     this.writeToLog('Downscaling droplet...');
                     await this.props.doClient.downscaleDroplet();
                     let timeout = 10000;
-                    this.writeToLog(`Checking if the droplet is upscaled every ${timeout / 1000} seconds...`);
+                    this.writeToLog(`Checking if the droplet is downscaled every ${timeout / 1000} seconds...`);
                     this.waitForFlag(
                         async () => {
                             // 4.1) Check if the action is finished

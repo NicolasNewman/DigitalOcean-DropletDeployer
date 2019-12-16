@@ -156,7 +156,7 @@ export default class DigitalOceanService {
     async turnOnDroplet() {
         try {
             const data = JSON.stringify({
-                type: 'turn_on'
+                type: 'power_on'
             });
             await this.client.post(`/droplets/${this.defaults.dropletId}/actions`, data, {
                 headers: {
