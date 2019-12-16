@@ -37,11 +37,10 @@ class Info extends Component<IProps, IState> {
                 // Save the key if requested
                 if (values.remember) {
                     this.props.dataStore.set('key', values.key);
-                    this.props.dataStore.set('snapshotName', values.snapshotName);
                 }
 
                 // Check if the user's key is valid
-                const isAuth = await this.props.doClient.authenticate(values.key, values.snapshotName);
+                const isAuth = await this.props.doClient.authenticate(values.key);
                 if (isAuth) {
                     // Enable the selection of the two tabs
                     this.props.setStartupTabState(false);
@@ -75,28 +74,6 @@ class Info extends Component<IProps, IState> {
                             />
                         )}
                     </Form.Item>
-                    <Row>
-                        <Form.Item>
-                            {getFieldDecorator('snapshotName', {
-                                initialValue: `${
-                                    this.props.dataStore.get('snapshotName')
-                                        ? this.props.dataStore.get('snapshotName')
-                                        : this.props.doClient.getDefaults().snapshotName
-                                }`,
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: 'Please input a name for the snapshot'
-                                    }
-                                ]
-                            })(
-                                <Input
-                                    prefix={<Icon type="tag" style={{ color: 'rgba(0,0,0,0.25)' }} />}
-                                    placeholder="Snapshot name"
-                                />
-                            )}
-                        </Form.Item>
-                    </Row>
                     <Row>
                         <Form.Item>
                             {getFieldDecorator('remember', {

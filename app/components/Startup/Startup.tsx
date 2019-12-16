@@ -45,37 +45,66 @@ export default class Startup extends Component<IProps, IState> {
     }
 
     start = async () => {
-        this.writeToLog('Making sure there are no duplicate snapshots...');
-        await this.props.doClient.deleteDuplicateSnapshots();
+        this.writeToLog('Checking if droplet exists...');
+        const dropletExists = await this.props.doClient.doesDropletExist();
+        if (dropletExists) {
+            this.writeToLog('Droplet found');
 
-        // 1) Create the droplet
-        this.writeToLog('Creating droplet...');
-        const id = await this.props.doClient.createDroplet();
-        // this.props.dataStore.set('id', id);
-        this.writeToLog(`Created droplet with ID ${id}`);
-
-        // 2) Wait for the droplet to be active
-        const timeout = 15000;
-        this.writeToLog(`Checking if the droplet is active every ${timeout / 1000} seconds...`);
-        this.waitForFlag(
-            async () => {
-                const status = await this.props.doClient.getDropletStatus(id);
-                this.writeToLog(`The droplet's status is ${status}`);
-                return status === 'active' ? true : false;
-            },
-            async () => {
-                this.writeToLog("Getting the droplet's ip...");
-                const ip = await this.props.doClient.getDropletIp(id);
-                this.writeToLog(`The droplet's ip is ${ip}`);
-                this.writeToLog("Updating the domain's A record to the new IP...");
-                await this.props.doClient.updateRecord(ip);
-                this.writeToLog("Updated the record's IP");
-                this.writeToLog('Putting the ids into storage...');
-                this.props.doClient.storeDefaults();
-                this.writeToLog('Done. Please give the mc server time to turn on.');
-            },
-            timeout
-        );
+            this.writeToLog('Turning off droplet...');
+            await this.props.doClient.shutdownDroplet();
+            let timeout = 5000;
+            this.writeToLog(`Checking if the droplet is offline every ${timeout / 1000} seconds...`);
+            this.waitForFlag(
+                async () => {
+                    // 4.1) Check if the action is finished
+                    const status = await this.props.doClient.getActionStatus(
+                        this.props.doClient.getDefaults().dropletId
+                    );
+                    this.writeToLog(`The current status is ${status}`);
+                    return status === 'completed' ? true : false;
+                },
+                async () => {
+                    this.writeToLog('The droplet is now offline');
+                    this.writeToLog('Upscaling droplet...');
+                    await this.props.doClient.upscaleDroplet();
+                    let timeout = 10000;
+                    this.writeToLog(`Checking if the droplet is upscaled every ${timeout / 1000} seconds...`);
+                    this.waitForFlag(
+                        async () => {
+                            // 4.1) Check if the action is finished
+                            const status = await this.props.doClient.getActionStatus(
+                                this.props.doClient.getDefaults().dropletId
+                            );
+                            this.writeToLog(`The current status is ${status}`);
+                            return status === 'completed' ? true : false;
+                        },
+                        async () => {
+                            this.writeToLog('The droplet has been upscaled');
+                            this.writeToLog('Turning the droplet back on...');
+                            await this.props.doClient.turnOnDroplet();
+                            let timeout = 5000;
+                            this.writeToLog(`Checking if the droplet is on every ${timeout / 1000} seconds...`);
+                            this.waitForFlag(
+                                async () => {
+                                    const status = await this.props.doClient.getActionStatus(
+                                        this.props.doClient.getDefaults().dropletId
+                                    );
+                                    this.writeToLog(`The current status is ${status}`);
+                                    return status === 'completed' ? true : false;
+                                },
+                                async () => {
+                                    this.writeToLog('The droplet is scaled and online');
+                                    this.writeToLog('Please wait for the server to turn on');
+                                },
+                                timeout
+                            );
+                        },
+                        timeout
+                    );
+                },
+                timeout
+            );
+        }
     };
 
     render() {

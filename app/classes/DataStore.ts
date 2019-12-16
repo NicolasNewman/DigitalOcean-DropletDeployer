@@ -20,14 +20,6 @@ export default class DataStore {
             dropletId: {
                 type: 'string',
                 description: 'The id of the droplet that was created'
-            },
-            snapshotId: {
-                type: 'string',
-                description: 'The id of the snapshot that was created'
-            },
-            snapshotName: {
-                type: 'string',
-                description: 'The name of the snapshot that is created'
             }
         };
         this.store = new Store({ schema: this.schema });
